@@ -1,0 +1,25 @@
+apiVersion: k8snoviceoperator.jnytnai0613.github.io/v1
+kind: K8sNoviceOperator
+metadata:
+  labels:
+    app.kubernetes.io/name: k8snoviceoperator
+    app.kubernetes.io/instance: k8snoviceoperator-sample
+    app.kubernetes.io/part-of: k8snovice-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: k8snovice-operator
+  name: k8snoviceoperator-sample
+  namespace: k8snovice-operator-system
+spec:
+  deploymentName: nginx
+  deploymentSpec:
+    replicas: 3
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 30%
+        maxUnavailable: 30%
+    template:
+      spec:
+        containers:
+          - name: nginx
+            image: nginx:latest
