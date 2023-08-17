@@ -69,7 +69,10 @@ func createOwnerReferences(
 	return owner, nil
 }
 
-func (r *K8sNoviceOperatorReconciler) applyDeployment(k8snovice k8snoviceoperatorv1.K8sNoviceOperator, logger logr.Logger) error {
+func (r *K8sNoviceOperatorReconciler) applyDeployment(
+	k8snovice k8snoviceoperatorv1.K8sNoviceOperator,
+	logger logr.Logger,
+) error {
 	var (
 		deploymentClient = r.Clientset.AppsV1().Deployments("k8snovice-operator-system")
 		labels           = map[string]string{"apps": "nginx"}
@@ -184,12 +187,13 @@ func (r *K8sNoviceOperatorReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		}
 	}
 
-	// Resources in secondary clusters are considered external resources.
-	// Therefore, they are deleted by finalizer.
+	// Perform CR deletion preprocessing.
 	finalizerName := "plumber.jnytnai0613.github.io/finalizer"
 	if !k8snovice.ObjectMeta.DeletionTimestamp.IsZero() {
 		if controllerutil.ContainsFinalizer(&k8snovice, finalizerName) {
+			//////////////////////////////////
 			// any finalizer logic here
+			//////////////////////////////////
 			controllerutil.RemoveFinalizer(&k8snovice, finalizerName)
 			if err := r.Client.Update(ctx, &k8snovice); err != nil {
 				return ctrl.Result{}, err
@@ -203,7 +207,6 @@ func (r *K8sNoviceOperatorReconciler) Reconcile(ctx context.Context, req ctrl.Re
 			return ctrl.Result{}, err
 		}
 	}
-
 	// Create Deployment
 	if err := r.applyDeployment(k8snovice, logger); err != nil {
 		logger.Error(err, "unable to apply Deployment")
